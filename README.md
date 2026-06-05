@@ -8,7 +8,8 @@ Reference material for Ansible Automation Platform role-based access control (RB
 |------|----------|---------|
 | [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) | **Humans** | Concepts, mermaid diagrams, walkthroughs, common mistakes |
 | [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) | **Humans** | Full role tree (text + mermaid) from superuser down to object roles |
-| [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Exhaustive lookup tables, API reference, goal → role mapping |
+| [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md) | **Humans & agents** | Every built-in role and its permissions, by service |
+| [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | **AI agents** | Goal → role lookup, API reference, decision guidance |
 
 ## Using with Cursor / other agents
 

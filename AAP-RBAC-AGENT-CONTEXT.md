@@ -6,7 +6,7 @@
 >
 > **Last derived from:** Local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and `ansible-ui`.
 >
-> | [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) (narrative) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) (role tree) | Humans — diagrams and walkthroughs for the same material.
+> **Companion docs:** [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md)
 
 ---
 
@@ -207,6 +207,8 @@ EDA org roles: `eda-server` → `create_initial_data.py` → `ORG_ROLES`. Per-re
 ## Gateway managed roles (complete reference)
 
 Sources: `ansible-ui/platform/access/authenticators/components/mocks/roleDefinitions.json`, `django-ansible-base/ansible_base/rbac/managed.py`.
+
+> **Full permission lists for every built-in role:** [AAP-RBAC-MANAGED-ROLES-CATALOG.md](./AAP-RBAC-MANAGED-ROLES-CATALOG.md)
 
 ### Platform Auditor (system-wide)
 
