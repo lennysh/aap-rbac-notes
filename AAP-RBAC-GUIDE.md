@@ -397,7 +397,8 @@ flowchart TD
 
 | Document | Audience |
 |----------|----------|
-| [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) (this file) | Humans — concepts, diagrams, walkthroughs |
+| [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) | Humans — concepts, diagrams, walkthroughs |
+| [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) | Humans — full role tree from superuser to object roles |
 | [AAP-RBAC-AGENT-CONTEXT.md](./AAP-RBAC-AGENT-CONTEXT.md) | AI agents — exhaustive lookup tables and API reference |
 
 Official Red Hat documentation: search for **“assembly-gw-roles”** in AAP access management docs.

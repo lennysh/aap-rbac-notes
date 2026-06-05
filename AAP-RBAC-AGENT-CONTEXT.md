@@ -6,7 +6,7 @@
 >
 > **Last derived from:** Local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and `ansible-ui`.
 >
-> **Human-friendly companion:** [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) — diagrams and walkthroughs for the same material.
+> | [AAP-RBAC-GUIDE.md](./AAP-RBAC-GUIDE.md) (narrative) · [AAP-RBAC-ROLE-HIERARCHY.md](./AAP-RBAC-ROLE-HIERARCHY.md) (role tree) | Humans — diagrams and walkthroughs for the same material.
 
 ---
 
