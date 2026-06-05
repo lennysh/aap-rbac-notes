@@ -178,7 +178,7 @@ Assign **Jane → Team Admin → Team “Ops”**.
 | Role | Why it’s wrong for this goal |
 |------|------------------------------|
 | Team Member | Puts Jane *on* the team; doesn’t grant roster management |
-| Organization Member | Org membership only; no team admin |
+| Organization Member | **Not sufficient alone** — membership marker only; no operational access |
 | Platform Auditor | Read-only |
 
 ### When Organization Admin is appropriate
@@ -193,12 +193,15 @@ If your Controller uses external SSO and `MANAGE_ORGANIZATION_AUTH` is disabled,
 
 ## Organizations and membership
 
+> **Organization Member alone does not confer any operational privileges.**  
+> Assigning only Organization Member puts a user *in* the org but gives them no ability to run jobs, manage teams, edit resources, or perform other work. It is a **membership marker** so the user can receive other roles (via teams, resource Access tabs, or org-level assignments). Always pair it with the roles that actually grant the capabilities you need.
+
 ```mermaid
 flowchart TB
     Org[Organization: Acme]
 
     OA[Organization Admin<br/>full admin in org]
-    OM[Organization Member<br/>member of org]
+    OM[Organization Member<br/>membership only — no ops access]
 
     OA --> Org
     OM --> Org
@@ -207,12 +210,16 @@ flowchart TB
     Org --> T2[Team Dev]
     Org --> R1[Controller resources]
     Org --> R2[EDA resources]
+
+    OM -.->|must also get| Extra[Team Member · Execute · Admin · etc.]
+    Extra --> T1
+    Extra --> R1
 ```
 
 | Role | Scope | Typical use |
 |------|-------|-------------|
 | **Organization Admin** | One org | IT lead for that business unit; manage teams, users, and all component resources in the org |
-| **Organization Member** | One org | Baseline membership; inherits org-level roles meant for “all members” |
+| **Organization Member** | One org | **Membership only** — prerequisite for org association; **must** combine with other roles for any real access |
 | **Platform Auditor** | Entire platform | Compliance / read-only oversight |
 
 Organization Admin includes team management permissions for **all teams in that org** — broader than Team Admin on one team.
@@ -370,6 +377,7 @@ flowchart TD
 
 | Mistake | Fix |
 |---------|-----|
+| **Organization Member assigned expecting access** | Organization Member alone grants **no operational privileges** — add Team Member + resource roles, or a role that grants the needed capability |
 | Team Member assigned to a “team manager” | Use **Team Admin** on the team |
 | Organization Admin for a single-team need | Use **Team Admin** on that team |
 | User can’t run a job template | Assign **Execute** on the template (directly or via team) |
@@ -387,7 +395,8 @@ flowchart TD
 | **Assignment** | Linking a user or team to a role on an object |
 | **Managed role** | Built-in role; don’t edit in production |
 | **Content type** | What kind of object a role applies to (`shared.team`, `awx.inventory`, …) |
-| **Member permission** | `member_team` / `member_organization` — marks membership and inheritance |
+| **Organization Member** | Built-in role with only membership permissions — **no operational access by itself**; combine with team or resource roles |
+| **Member permission** | `member_team` / `member_organization` — marks membership for inheritance; not an operational capability on its own |
 | **Gateway** | Central API for orgs, teams, users, and unified RBAC |
 | **DAB** | django-ansible-base — shared RBAC library |
 

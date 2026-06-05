@@ -96,6 +96,7 @@ Managed roles (`managed: true`) are created by the platform and should not be ed
 
 **Hard rules:**
 
+- **Organization Member alone confers no operational privileges** — it only marks org membership for inheritance; assign additional roles (team, resource, or org-level) for any real access.
 - Teams cannot be assigned Organization Admin/Member or Team Admin/Member roles.
 - `member_team` cannot appear in system-wide (`content_type: null`) custom roles.
 - Organization-level roles that include `member_team` apply across all teams in that org.
@@ -115,7 +116,7 @@ Use the **minimum** role listed first. Assignments are **user → role → objec
 | View team metadata only | `shared.view_team` | Custom role or **Platform Auditor** | Team or system | |
 | Create/delete teams in an org | `shared.add_team`, `shared.delete_team`, … | **Organization Admin** | Organization | |
 | Manage org settings | `shared.change_organization`, … | **Organization Admin** | Organization | |
-| Be part of an org (inherit org-level roles) | `shared.member_organization` | **Organization Member** | Organization | Does **not** grant team user management. |
+| Be part of an org (prerequisite for member-targeted roles) | `shared.member_organization` | **Organization Member** | Organization | **Alone: no operational privileges.** Only marks membership; user still needs Team Member, resource roles, or other assignments. |
 | View all orgs/teams (read-only, global) | `shared.view_*` | **Platform Auditor** | System (`content_type: null`) | |
 | Full system administration | All permissions | Django **superuser** / Gateway admin | System | Bypasses RBAC. |
 
@@ -230,7 +231,9 @@ Sources: `ansible-ui/platform/access/authenticators/components/mocks/roleDefinit
 |-------|-------|
 | **content_type** | `shared.organization` |
 | **Permissions** | `shared.member_organization`, `shared.view_organization` |
-| **Use for** | Org membership; inherits org-level roles granted to members |
+| **Use for** | Marks that a user belongs to the organization (membership hook for inheritance) |
+
+> **Critical:** Organization Member **alone does not confer any operational privileges.** It does not let a user run jobs, manage teams, edit inventories, or access org resources. The listed permissions are membership markers — `member_organization` enables inheritance when **other** roles are assigned (to the user, to a team they join, or to org members as a group). Always assign additional roles for any capability beyond “is in this org.”
 
 ### Team Admin
 
@@ -373,7 +376,7 @@ Use `"team": <team_id>` instead of `"user"` for team-to-object assignments.
 
 **Alternative (broader):** {optional}
 
-**Not sufficient:** {wrong roles and why}
+**Not sufficient:** {wrong roles and why — e.g. Organization Member alone for any operational goal}
 
 **Verify:** Access Management → {path} or GET {endpoint}
 ```

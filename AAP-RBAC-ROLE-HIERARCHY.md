@@ -20,6 +20,8 @@ A **breadth-first role tree**: widest access at the top, narrowest at the bottom
 
 **Not shown:** Custom roles you create, legacy Controller implicit names (`admin_role`, `read_role`), superuser-equivalent Gateway service accounts.
 
+> **Organization Member:** Appears in this tree under organization scope, but **alone it confers no operational privileges** — only membership for inheritance. It is not a “step down” from Organization Admin in terms of usable access; it is a separate, non-capability role.
+
 ---
 
 ## Master tree (text)
@@ -70,8 +72,9 @@ AAP RBAC
 │   │       └── full CRUD + member on team, activation, project, …
 │   │
 │   ├── Organization Member               [shared.organization]
-│   │   ├── shared.member_organization      ← member OF org (inherit org roles)
-│   │   └── shared.view_organization
+│   │   ├── shared.member_organization      ← membership hook ONLY (inheritance)
+│   │   ├── shared.view_organization        ← view org record; NOT access to org resources
+│   │   └── ⚠ ALONE: no operational privileges — must add team/resource/other roles
 │   │
 │   ├── Organization Audit                [Controller bundle]
 │   │   ├── audit_organization
@@ -186,7 +189,7 @@ flowchart TB
     subgraph ORG["ORGANIZATION SCOPE · assign on org object"]
         direction TB
         OA["Organization Admin<br/>────<br/>All shared.* org + team perms<br/>+ all awx.* / eda.* in org"]
-        OM["Organization Member<br/>────<br/>shared.member_organization<br/>shared.view_organization"]
+        OM["Organization Member<br/>────<br/>⚠ NO ops privileges alone<br/>shared.member_organization<br/>shared.view_organization<br/>Add team/resource roles for access"]
         OX["Controller org bundles<br/>────<br/>Organization Audit<br/>Organization Execute<br/>Organization Approval"]
         OYA["Organization Resource Admin × N<br/>────<br/>Organization Project Admin<br/>Organization Inventory Admin<br/>Organization Job Template Admin<br/>…"]
         OEA["EDA org roles<br/>────<br/>Organization Editor · Contributor<br/>Operator · Auditor · Viewer"]
@@ -264,7 +267,7 @@ flowchart TB
     ORG["Organization: Acme"]
 
     ORG --> OA["Organization Admin on Acme<br/>CAN manage all teams"]
-    ORG --> OM["Organization Member on Acme<br/>member of org only"]
+    ORG --> OM["Organization Member on Acme<br/>membership only — no ops access"]
 
     ORG --> T1["Team: Ops"]
     ORG --> T2["Team: Dev"]
@@ -393,9 +396,11 @@ flowchart TB
 | 5 | **Organization Execute / Audit / Approval** | One org, one Controller capability bundle |
 | 6 | **EDA Organization Editor / Contributor / …** | One org, subset of EDA actions |
 | 7 | **Team Admin** | One team + its membership |
-| 8 | **Team Member** | One team, inherit team’s resource roles |
+| 8 | **Team Member** | One team; inherit team’s resource roles (still needs team role assignments) |
 | 9 | **{Resource} Admin** | One object, full control |
 | 10 | **{Resource} Execute / Use / …** | One object, one action |
+
+**Organization Member is not on this ladder as usable access.** It is a membership marker (level “0” for capabilities): assign it when you need org association, then assign rows 7–10 (or Org Admin) for actual permissions.
 
 ---
 
