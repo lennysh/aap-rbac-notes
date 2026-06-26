@@ -224,6 +224,8 @@ flowchart TB
 
 Organization Admin includes team management permissions for **all teams in that org** — broader than Team Admin on one team.
 
+> **Choosing tenant structure?** Architects deciding between **one org + teams** vs **orgs as teams** should read [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) — especially [§6 Sharing content across units](AAP-RBAC-ORGANIZATIONAL-DESIGN.md#6-sharing-content-across-units) for cross-org rules (credentials vs projects) and hybrid patterns.
+
 ---
 
 ## Controller (Automation Execution)
@@ -407,7 +409,7 @@ flowchart TD
 | Document | Audience |
 |----------|----------|
 | [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) | Humans — concepts, diagrams, walkthroughs |
-| [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) | Humans — single org vs orgs as teams |
+| [AAP-RBAC-ORGANIZATIONAL-DESIGN.md](AAP-RBAC-ORGANIZATIONAL-DESIGN.md) | Humans — single org vs orgs as teams; [§6](AAP-RBAC-ORGANIZATIONAL-DESIGN.md#6-sharing-content-across-units) cross-org sharing |
 | [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) | Humans — full role tree from superuser to object roles |
 | [AAP-RBAC-MANAGED-ROLES-CATALOG.md](AAP-RBAC-MANAGED-ROLES-CATALOG.md) | Humans & agents — every built-in role and permissions |
 | [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) | Humans — permission overlap and subset diagrams |

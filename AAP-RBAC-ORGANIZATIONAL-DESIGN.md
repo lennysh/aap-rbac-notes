@@ -8,6 +8,8 @@ A decision guide for choosing between **one organization with many teams** and *
 
 **Related:** [AAP-RBAC-ROLE-HIERARCHY.md](AAP-RBAC-ROLE-HIERARCHY.md) · [AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md](AAP-RBAC-ROLE-PERMISSION-OVERLAPS.md) · [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md)
 
+**Last validated:** 2026-06-05 against local forks of `django-ansible-base`, `awx`, `eda-server`, `galaxy_ng`, and `ansible-ui`.
+
 ---
 
 ## The decision in one sentence
@@ -20,11 +22,15 @@ Choosing “single org + teams” vs “orgs as teams” is not a naming prefere
 
 ## What AAP actually supports
 
-Both models use the same object hierarchy. There is **no nested-team feature** — teams are always a flat list under one org.
+Both models use the same object hierarchy:
+
+- There is **no nested-team feature** — teams are always a flat list under one org (`ANSIBLE_BASE_ALLOW_TEAM_PARENTS = False` in AAP services).
+- Each team belongs to **exactly one** organization.
+- Teams **do not own** resources; they group users and receive role assignments (on objects, or at org scope).
 
 ```text
 Organization   ← hard tenant boundary (resources live here)
-  └── Team       ← grouping + bulk RBAC (one level only)
+  └── Team       ← grouping + bulk RBAC (one level only; one org per team)
   └── Team
   └── Team
 ```
@@ -102,10 +108,10 @@ Each business unit **is** an org. Resources are structurally separated. Teams wi
 | **Organization Admin** | Administers **all teams and all resources** in the company org | Administers **one business unit** only |
 | **Team Admin** | Manages one team’s roster and settings (same in both models) | Same |
 | **Accidental cross-access risk** | Higher — one shared resource pool | Lower — wrong role in Org A does not reach Org B |
-| **Shared playbooks / credentials** | Easy — create once, assign teams | Harder — shared org, cross-org grants, or duplication |
+| **Shared playbooks / credentials** | Easy — create once, assign teams in the same org | Harder — see [§6 Sharing content](#6-sharing-content-across-units); credentials have a strict same-org rule |
 | **Per-unit limits** | One `max_hosts`, default EE, org instance groups for everyone | Per-org caps and execution settings |
 | **Audit / chargeback** | Weaker natural boundary; filter by assignments | Strong natural boundary at org level |
-| **Licensing** | Works on self-support (single org only) | Requires entitlement for **multiple orgs** |
+| **Licensing** | Compatible with self-support per Red Hat product docs (single org) | Requires subscription entitlement for multiple orgs — confirm with your account team |
 
 ---
 
@@ -118,7 +124,7 @@ Red Hat defines an organization as *“the highest level object in the Ansible A
 | Object | What it owns | Isolation strength |
 |--------|--------------|-------------------|
 | **Organization** | Projects, inventories, credentials, job templates, workflows, EDA activations, notification templates, execution environment defaults | **Hard boundary** — resources belong to exactly one org |
-| **Team** | Users (via Team Member) and inherited role assignments | **Soft boundary** — groups people; does not own resources |
+| **Team** | Users (via Team Member) and inherited role assignments; can also hold **organization-level** roles | **Soft boundary** — groups people; does not own resources |
 
 In **Model A**, calling something a “team” does **not** isolate its credentials or inventories from other teams. Those objects are still Acme Corp resources.
 
@@ -185,13 +191,13 @@ flowchart LR
         direction TB
         S1[Org A resources]
         S2[Org B resources]
-        S3[Cross-org access = explicit grant only]
+        S3[Cross-org access = explicit grant<br/>with resource-type limits]
     end
 ```
 
 In Model A, a credential created “for Ops” is still an org-wide object. A mis-assigned **Organization Credential Admin** or overly broad team role can expose it.
 
-In Model B, Ops credentials live in Org Ops. Dev users have no path to them unless you deliberately assign cross-org roles or duplicate resources.
+In Model B, Ops credentials live in Org Ops. Dev users have no path to them unless you deliberately share access (with constraints — see §6) or duplicate resources.
 
 ### 5. Two levels of structure, different isolation strength
 
@@ -204,20 +210,32 @@ Model B gives you **two tiers with different isolation properties**: org = hard 
 
 ### 6. Sharing content across units
 
-**Model A — trivial**
+**Model A — straightforward (same org)**
 
 1. Create project/credential/inventory once in Acme.
-2. Assign **Use** / **Execute** / **Admin** to the relevant teams.
+2. Assign **Use** / **Execute** / **Admin** to the relevant teams (all in Acme).
 
-**Model B — requires a pattern**
+**Model B — requires a deliberate pattern**
+
+Cross-org sharing is **not one-size-fits-all**. Controller enforces extra rules on some resource types:
+
+| Resource type | Cross-org team grant (normal admin) | Cross-org user grant (normal admin) | Typical workaround |
+|---------------|-------------------------------------|-------------------------------------|-------------------|
+| **Credentials** | **Blocked** — team must be in the credential’s org | **Blocked** — user must be a member of the credential’s org | Duplicate creds per org; or users in multiple orgs; superuser for exceptions |
+| **Projects, job templates, inventories** | Often possible at the Gateway/DAB layer | User should be an org member of the resource’s org | Prefer multi-org users or a shared Platform org |
+| **Execution environments** | Varies; org-scoped EEs require actor to have org access | User must have view access to the EE’s org | Duplicate or shared Platform org |
+
+> **Code reference:** `awx/main/models/credential.py` — `validate_role_assignment` rejects granting credential access to a user or team not in the credential’s organization (superusers excepted).
 
 | Pattern | When to use | Tradeoff |
 |---------|-------------|----------|
-| **Shared services org** (“Platform”) | Common playbooks, vault lookup creds, compliance templates | Central team maintains shared org; tenant orgs get narrow cross-org grants |
-| **Duplicate resources** | Same Git repo, separate project per org | Simple mental model; more objects to maintain |
-| **Users in multiple orgs** | Same person works across units | Effective permissions = **union** of all role assignments |
+| **Shared services org** (“Platform”) | Common playbooks, compliance templates, centrally managed projects | Tenant users join Platform org (Organization Member) and get narrow resource roles; credentials still need same-org team/user or duplication |
+| **Duplicate resources** | SSH keys, vault creds, same Git repo per tenant | Simple mental model; more objects to maintain; strongest isolation |
+| **Users in multiple orgs** | Same person works across units | Effective permissions = **union** of all role assignments; most reliable cross-org pattern |
 
 Users **can** belong to multiple orgs and teams. Their effective access is the union of every granted role — this is by design, not a workaround.
+
+**Do not assume** “grant tenant team Execute on Platform project” works for every resource type. For **secrets (credentials)**, plan duplication or multi-org membership — not cross-org team grants.
 
 ### 7. Per-org operational knobs
 
@@ -227,9 +245,10 @@ Each organization can have its own:
 |---------|--------|
 | `max_hosts` | Cap managed hosts for that org |
 | Default execution environment | Default EE for job templates in the org |
-| Instance groups | Dedicated execution capacity (performance / network / compliance isolation) |
+| Instance groups (org-associated) | Dedicated execution capacity for jobs in that org |
+| Instance groups (system-level) | Shared execution capacity; can be linked to orgs or job templates |
 
-In Model A, these apply to **everyone** in the single org unless you use template-level instance groups or other workarounds.
+In Model A, org-level settings apply to **everyone** in the single org unless you use template-level instance groups or other workarounds.
 
 In Model B, each tenant org can have independent caps and execution topology.
 
@@ -245,7 +264,10 @@ Hub collections and namespaces are often scoped **globally** or to a **namespace
 flowchart TD
     Start[Designing tenant structure]
 
-    Start --> Q1{Must units be unable to<br/>see each other's creds<br/>and inventories?}
+    Start --> Q0{Self-support or other<br/>single-org license?}
+    Q0 -->|Yes| SingleOnly[Model A only — single org + teams]
+
+    Q0 -->|No — multiple orgs entitled| Q1{Must units be unable to<br/>see each other's creds<br/>and inventories?}
     Q1 -->|Yes — compliance / multi-tenant| Multi[Orgs as teams]
     Q1 -->|No — one trust domain| Q2
 
@@ -253,16 +275,15 @@ flowchart TD
     Q2 -->|Yes| Multi
     Q2 -->|No — central platform owns resources| Single[Single org + teams]
 
-    Start --> Q3{Self-support license<br/>single org only?}
-    Q3 -->|Yes| Single
-
     Multi --> Q4{Need shared playbooks<br/>across units?}
-    Q4 -->|Yes| Hybrid[Hybrid: Platform org + tenant orgs]
+    Q4 -->|Yes| Hybrid[Hybrid: Platform org + tenant orgs<br/>plan credential sharing carefully]
     Q4 -->|No| MultiAlone[Orgs as teams only]
 
     Single --> Q5{Teams mostly need Execute/Use<br/>on shared resources?}
     Q5 -->|Yes| SingleGood[Single org fits well]
     Q5 -->|No| Reconsider[Reconsider — may need orgs as teams]
+
+    SingleOnly --> Q5
 ```
 
 ---
@@ -274,7 +295,7 @@ flowchart TD
 - One company or one trust domain; teams collaborate and share inventories, projects, and credentials.
 - A central platform team creates and owns most resources; line teams mainly need **Execute**, **Use**, or narrow resource roles.
 - You want simpler administration — fewer orgs, fewer cross-org grants, fewer duplicated objects.
-- You are on **self-support** licensing (single org only).
+- You are on **self-support** or another single-org license (per Red Hat subscription docs).
 - Unit isolation is desirable but enforced by **process and RBAC**, not regulatory structure.
 
 ### Choose orgs as teams when
@@ -307,7 +328,7 @@ Org "Finance"
   └── Team "Compliance"
 ```
 
-Grant tenant teams **Use** / **Execute** on Platform resources; keep **Organization Admin** scoped to each tenant org.
+Grant tenant **users** (in both tenant and Platform orgs) or **Platform-org teams** narrow **Use** / **Execute** on shared projects and templates. Keep **Organization Admin** scoped to each tenant org. For **credentials**, duplicate per org or use multi-org users — cross-org team grants on credentials are blocked for normal admins.
 
 ---
 
@@ -322,6 +343,8 @@ User Jane  →  Team Admin  →  Team "Ops"
 ```
 
 See the walkthrough in [AAP-RBAC-GUIDE.md](AAP-RBAC-GUIDE.md) — *“I want Jane to add and remove users on the Ops team”*.
+
+> **External auth caveat:** When `MANAGE_ORGANIZATION_AUTH` is false (common with external SSO), Organization Admin may be blocked from team membership changes on Controller-backed teams. **Team Admin** on the specific team remains the reliable narrow fix. See [AAP-RBAC-AGENT-CONTEXT.md](AAP-RBAC-AGENT-CONTEXT.md).
 
 ### Delegating unit administration
 
@@ -339,6 +362,7 @@ Prefer assigning roles **to teams** (not individual users) at the **narrowest sc
 |-------|---------|----------|
 | Object | Job Template Execute on one template | One-off access |
 | Team + object | Team Deployers → Execute on Deploy App | Standard pattern in both models |
+| Team + org | Team Operators → Organization Execute on Engineering | Bulk execute within one org |
 | Org resource type | Organization Inventory Admin on Engineering | All inventories in one org |
 | Org | Organization Admin | Full unit or company admin |
 
@@ -381,7 +405,11 @@ Organization: Finance
 
 **Delegation:** Engineering lead gets **Organization Admin on Engineering** — full self-service inside Engineering, zero visibility into Finance.
 
-**Sharing:** Compliance playbook lives in Org Platform; Finance-Compliance team gets **Project Use** on that shared project (cross-org grant).
+**Sharing (compliance playbook in Org Platform):**
+
+- Add Finance users as **Organization Members** of Platform, then grant **Project Use** on the shared project — most reliable pattern.
+- Or duplicate the project in Finance — simplest isolation, more maintenance.
+- Do **not** grant Platform **credential** access to Finance teams/users who are not in Platform’s org (Controller blocks this for normal admins).
 
 ---
 
@@ -395,6 +423,8 @@ Organization: Finance
 | “Org Admin on Acme = Org Admin on Engineering” | Same role **name**, different **blast radius** depending on model. |
 | “Orgs as teams means we don’t need teams” | Still use teams within each org for roster bulk-assignment and least privilege. |
 | “Moving from Model A to B later is easy” | Reorganizing tenant structure is hard — **design early**. |
+| “Cross-org team grants share everything” | **Credentials** require same-org team/user (unless superuser). Projects/templates are more flexible; plan per resource type. |
+| “Each team can span orgs” | No. Every team has exactly one parent organization. |
 
 ---
 
@@ -402,11 +432,12 @@ Organization: Finance
 
 | Topic | Detail |
 |-------|--------|
-| **Self-support license** | Default org only; cannot delete it. Model B is not available. |
-| **Standard / enterprise** | Multiple orgs supported; confirm entitlement with your account team. |
+| **Self-support license** | Per Red Hat product documentation: default org only; you must not delete it; additional orgs are not available. Model B is not an option. *(Enforced by subscription/licensing, not by RBAC engine code alone.)* |
+| **Standard / enterprise** | Multiple orgs supported per subscription; confirm entitlement with your account team. |
+| **Managed default org** | The UI blocks deletion of **system-managed** organizations (`organization.managed`). This applies regardless of license tier. |
 | **Reorganization cost** | Resources belong to orgs. Splitting one org into many requires moving or recreating objects and reassigning roles. |
 | **External auth** | LDAP/SAML can map directory groups to orgs and teams. Org-as-teams maps cleanly to “one AD group → one org admin.” See Red Hat access management docs for `AUTH_LDAP_ORGANIZATION_MAP` / SAML team org map. |
-| **Users spanning orgs** | Supported. Permissions union across all assignments. |
+| **Users spanning orgs** | Supported. Effective permissions are the **union** of all role assignments across orgs and teams. |
 
 ---
 
