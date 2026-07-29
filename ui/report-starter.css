@@ -1,0 +1,288 @@
+/**
+ * AAP Platform UI — HTML report starter CSS
+ * Derived from ansible-ui-fork (PatternFly 6.3.1)
+ *
+ * Recommended: also load PatternFly base CSS in your HTML:
+ *   <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6.3.1/patternfly-addons.css">
+ *   <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6.3.1/patternfly-base.css">
+ *
+ * Dark mode: add class="pf-v6-theme-dark" to <html>
+ */
+
+:root {
+  font-family: var(
+    --pf-t--global--font--family--body,
+    "Red Hat Text",
+    Helvetica,
+    Arial,
+    sans-serif
+  );
+  font-size: 0.875rem;
+  color: var(--pf-t--global--text--color--regular, #151515);
+  background: var(--pf-t--global--background--color--primary--default, #ffffff);
+  /* ansible-ui override — framework/PageFramework.css */
+  --pf-t--global--border--color--default: light-dark(#ccc, #505050);
+}
+
+body {
+  margin: 0;
+}
+
+/* Masthead (top bar) */
+.report-masthead {
+  background: var(--pf-t--global--background--color--secondary--default, #f2f2f2);
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ccc);
+  padding: 8px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.report-masthead .brand {
+  font-family: var(
+    --pf-t--global--font--family--heading,
+    "Red Hat Display",
+    Helvetica,
+    Arial,
+    sans-serif
+  );
+  font-weight: 600;
+  color: light-dark(black, white);
+  text-decoration: none;
+}
+
+/* Page header (title + description) */
+.report-page-header {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ccc);
+}
+
+.report-page-header h1 {
+  font-family: var(
+    --pf-t--global--font--family--heading,
+    "Red Hat Display",
+    Helvetica,
+    Arial,
+    sans-serif
+  );
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.report-page-header .description {
+  opacity: 0.8;
+  margin-top: 4px;
+  color: var(--pf-t--global--text--color--subtle, #4d4d4d);
+}
+
+/* Main content area */
+.report-content {
+  padding: 24px;
+}
+
+/* Tables (PageTable-style) */
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--pf-t--global--background--color--primary--default, #fff);
+}
+
+.report-table th {
+  text-align: left;
+  padding: 8px 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ccc);
+  background: var(--pf-t--global--background--color--secondary--default, #f2f2f2);
+}
+
+.report-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--pf-t--global--border--color--default, #ccc);
+}
+
+.report-table tr:nth-child(even) td {
+  background: var(--pf-t--global--background--color--secondary--default, #f2f2f2);
+}
+
+.report-table tr:hover td {
+  background: var(--pf-t--global--background--color--primary--hover, #f2f2f2);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--pf-t--global--color--brand--default, #0066cc);
+  color: var(--pf-t--global--text--color--on-brand--default, #fff);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-primary:hover {
+  background: var(--pf-t--global--color--brand--hover, #004d99);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--pf-t--global--color--brand--default, #0066cc);
+  border: 1px solid var(--pf-t--global--color--brand--default, #0066cc);
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-danger {
+  background: var(--pf-t--global--color--status--danger--default, #b1380b);
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+/* Status text */
+.status-success {
+  color: var(--pf-t--global--color--status--success--default, #3d7317);
+}
+
+.status-danger {
+  color: var(--pf-t--global--color--status--danger--default, #b1380b);
+}
+
+.status-warning {
+  color: var(--pf-t--global--color--status--warning--default, #ffcc17);
+}
+
+.status-info {
+  color: var(--pf-t--global--color--status--info--default, #5e40be);
+}
+
+.muted {
+  color: var(--pf-t--global--text--color--subtle, #4d4d4d);
+}
+
+.disabled {
+  color: var(--pf-t--global--text--color--disabled, #a3a3a3);
+}
+
+a {
+  color: var(--pf-t--global--text--color--link--default, #0066cc);
+}
+
+a:visited {
+  color: var(--pf-t--global--text--color--link--visited, #5e40be);
+}
+
+a:hover {
+  color: var(--pf-t--global--text--color--link--hover, #004d99);
+}
+
+/* Status badges (inline) */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: #e9f4e4;
+  color: #3d7317;
+}
+
+.badge-danger {
+  background: #faeae5;
+  color: #b1380b;
+}
+
+.badge-warning {
+  background: #fff6cc;
+  color: #795600;
+}
+
+.badge-info {
+  background: #ece5f8;
+  color: #5e40be;
+}
+
+/* Cards / panels */
+.report-card {
+  background: var(--pf-t--global--background--color--primary--default, #fff);
+  border: 1px solid var(--pf-t--global--border--color--default, #ccc);
+  border-radius: 4px;
+  padding: 16px 24px;
+  margin-bottom: 16px;
+}
+
+.report-card h2 {
+  font-family: var(
+    --pf-t--global--font--family--heading,
+    "Red Hat Display",
+    Helvetica,
+    Arial,
+    sans-serif
+  );
+  font-size: 1.25rem;
+  margin: 0 0 8px 0;
+}
+
+/* Code / monospace (job output style) */
+code,
+pre {
+  font-family: var(
+    --pf-t--global--font--family--mono,
+    "Red Hat Mono",
+    "Courier New",
+    monospace
+  );
+  font-size: 0.875rem;
+}
+
+pre {
+  background: var(--pf-t--color--gray--95, #151515);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Dark mode */
+html.pf-v6-theme-dark {
+  color: #fff;
+  background: #292929;
+}
+
+html.pf-v6-theme-dark .report-masthead,
+html.pf-v6-theme-dark .report-table th,
+html.pf-v6-theme-dark .report-table tr:nth-child(even) td {
+  background: #151515;
+}
+
+html.pf-v6-theme-dark .report-table {
+  background: #292929;
+}
+
+html.pf-v6-theme-dark .report-card {
+  background: #292929;
+}
+
+html.pf-v6-theme-dark .badge-success {
+  background: #1a2e0f;
+}
+
+html.pf-v6-theme-dark .badge-danger {
+  background: #3d1a0a;
+}
+
+html.pf-v6-theme-dark .badge-warning {
+  background: #3d3200;
+}
+
+html.pf-v6-theme-dark .badge-info {
+  background: #2a1f4a;
+}
