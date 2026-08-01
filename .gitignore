@@ -5,4 +5,5 @@ __pycache__/
 # Local Red Hat reference inputs — not committed (see installer/README.md)
 .crd-dumps/
 .installer-dumps/
+.operator-dumps/
 *.tar.gz

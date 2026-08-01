@@ -4,6 +4,8 @@ Example Kubernetes manifests for deploying Ansible Automation Platform with the 
 
 RPM and containerized inventory references live in [`installer/`](../installer/).
 
+Backup/Restore CRs, what they consume, and why installer backups cannot feed them: [`backup-restore/`](../backup-restore/).
+
 Local operator CRD dumps (gitignored): [`.crd-dumps/`](../.crd-dumps/) at repo root.
 
 ## Version index

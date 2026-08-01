@@ -4,6 +4,8 @@ Annotated **RPM** and **containerized** installer inventories, optional `vars-ex
 
 OpenShift operator examples live in the sibling [`openshift/`](../openshift/) folder (operator CRs, not install playbooks).
 
+Backup/restore behavior (what is dumped, secrets/UUIDs, cross-platform limits): [`backup-restore/`](../backup-restore/).
+
 Local Red Hat installer tarballs (gitignored): [`.installer-dumps/`](../.installer-dumps/) at repo root.
 
 ## Layout
